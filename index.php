@@ -4,9 +4,18 @@
 		
 		<!--import some js libraries and css here-->
 		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 	</head>
 	<body>
+		<script>
+			var connection = new WebSocket('ws://172.16.1.206:8080');
+			connection.onmessage = function(e){
+			   var server_message = e.data;
+			   $("#message").html(server_message);
+			   console.log(server_message);
+			}
+		</script>
 		<nav class="navbar navbar-default" role="navigation">
 		  <div class="container-fluid">
 		    <!-- Brand and toggle get grouped for better mobile display -->
@@ -17,7 +26,7 @@
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		      </button>
-		      <a class="navbar-brand" href="#">Brand</a>
+		      <a class="navbar-brand" href="#">Codini</a>
 		    </div>
 
 		    <!-- Collect the nav links, forms, and other content for toggling -->
@@ -60,3 +69,8 @@
 		    </div><!-- /.navbar-collapse -->
 		  </div><!-- /.container-fluid -->
 		</nav>
+
+		<!--start page content-->
+
+		<p>Message:</p><div id="message">No Message Received</div>
+		<footer style="class="footer">&copy; 2014 Jake Glass, Mihir Trivedi, and Kevin Vincent</div>
