@@ -187,8 +187,11 @@
                     console.log(suggestedUrl);
                     var n = suggestedUrl.search("/API/");
                     var linkingUrl = "docs/" + parsee['syntax'] + ".docset/Contents/Resources/Documents/" + suggestedUrl;
-     
-                    var finalProduct = "<li onclick=\"loadLocalFrame('" + linkingUrl + "')\">" + suggestedWord + "</li>";
+                    
+                    var suggestedWordHtml1 = suggestedWord.substring(0,suggestedWord.indexOf(parsee['word'])) + "<b>"
+                    var suggestedWordHtml2 = parsee['word'] + "</b>"
+                    var suggestedWordHtml3 = suggestedWord.substring(suggestedWord.indexOf(parsee['word'])+parsee['word'].length)
+                    var finalProduct = "<li onclick=\"loadLocalFrame('" + linkingUrl + "')\">" + suggestedWordHtml1+suggestedWordHtml2+suggestedWordHtml3 + "</li>";
                     listHtml += finalProduct;
                 }
                 $(".suggestionsBox").html(listHtml);
