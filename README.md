@@ -1,4 +1,4 @@
-codini
+Codini
 ======
 
 Code Completion, Documentation, and Programming Teaching App
