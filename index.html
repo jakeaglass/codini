@@ -1,0 +1,166 @@
+<html>
+	<head>
+		<title>Codini &endash; Mobile Code Assistant with a Touch of Magic</title>
+		
+		<!--import some js libraries and css here-->
+		<link rel="stylesheet" href="css/bootstrap.min.css">
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="css/animate.css">
+
+		<style>
+			.full-screen {
+			    width: 100%;
+			    height: 100%;
+			    margin: 0;
+			    top: 0;
+			    left: 0;
+			}
+			.footer {
+				width:100%;
+				height:20px;
+				position:absolute;
+				bottom:10;
+				left:0;
+			    color:#a3a7a8;
+			    text-align:center;
+			}
+			#ipInput{
+				border:0;
+				outline:none;
+				border-bottom:1px;
+				text-align:right;
+			}
+			.btn-xlarge {
+			    padding: 18px 28px;
+			    font-size: 22px;
+			    line-height: normal;
+			    -webkit-border-radius: 8px;
+			       -moz-border-radius: 8px;
+			            border-radius: 8px;
+			    display:block;
+			}
+			body{
+				font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
+			}
+		</style>
+
+		<script>
+			function connectToWebsocketServer(ipAddress){
+				try{ //attempt to establish websocket connection
+					var connection = new WebSocket('ws://'+ipAddress+':8080');
+				} catch(e){
+					console.log(e.message);
+				}
+				console.log("server started");
+				connection.onmessage = function(e){
+				   var server_message = e.data;
+				   $("#message").html(server_message);
+				   console.log(server_message);
+				}
+				connection.onerror = function(e){
+					var error_message = e.data;
+					console.log(error_message);
+				}
+			}
+			var ipEntered=0;
+			$("document").ready(function(){
+				//let's query the local storage for a saved IP
+				var previouslySavedIp=localStorage.getItem("hostIp");
+				if(previouslySavedIp!==undefined){
+					$('#ipSelectModal').modal('show');
+				}
+				else{
+					connectToWebsocketServer(previouslySavedIp);
+				}
+
+				//event handler for modal dismiss and ip save function
+				$("#saveIpButton").click(function(){
+					//animate the switching of displays
+					$("#splash-screen").slideUp(1000);
+					$("#main-content").slideDown(1000);
+
+					//handle the ip and websocket creation
+					ipEntered=1;
+					if(typeof(Storage) !== "undefined") { //if the browser supports local data storage
+						localStorage.setItem("hostIp", $("#ipInput").val());
+						console.log("ip in local storage");
+					}
+					console.log("ip saved");
+					connectToWebsocketServer($("#ipInput").val());
+				}); //end saveIP event handler for button press after modal dismiss
+
+				//delete the cached ip and reload the page
+				$("#forgetPairingButton").click(function(){
+					localStorage.setItem("hostIp",null);
+					location.reload(true);
+				});
+			
+			
+				//ip address validator
+				var ipValidator=new RegExp("(\[0-9]{1,3})\.(\[0-9]{1,3})\.(\[0-9]{1,3})\.(\[0-9]{1,3})");
+
+	            $('#ipInput').keydown(function(){ 
+
+	            	var currInput = $('#ipInput').val();
+	            	if(currInput!=("localhos" || "localhost")){
+		            	var success=ipValidator.test(currInput);
+
+		            	if(success==true){
+		            		$("#ipInputArea").css({"color":"#2ecc71"}); //GREEN!
+			            	$("#saveIpButton").fadeIn();
+
+		            	}
+		            	else{
+		            		$("#ipInputArea").css({"color":"#c0392b"});
+		            	}
+		            }
+		            else{
+		            	$("#ipInputArea").css({"color":"#2ecc71"}); //GREEN!
+		            	$("#saveIpButton").fadeIn();
+		            }
+	            });
+
+            }); //end onLoad function
+		</script>
+	</head>
+	<body>
+	<!--MODAL & ALERT SETUP-->
+	
+	<!-- bad socket connection alert-->
+	<button type="button" class="close" data-dismiss="alert">
+  		<span aria-hidden="true">&times;</span>
+  		<span class="sr-only">Close</span>
+	</button>
+
+	<!-- ipSelectScreen -->
+	<div class="container" id="splash-screen">
+  		<div class="row">
+    		<div class="col-lg-4 col-md-4"></div>
+    		<div class="col-lg-4 col-md-4">
+    			<h1 style="text-align:center;color:#3498db;margin-top:12%;">Codini</h1>
+    			<img src="codini-logo.svg" width="100%" />
+    			<div id="ipInputArea" style="margin-top:10px;font-size:2em;color:#c0392b">
+    				<label for="ipInput">IP: </label>
+					<input style="width:89%" type="text" id="ipInput" placeholder="192.168.1.1"></input>
+					<button class="btn btn-xlarge" id="saveIpButton" style="margin-top:10px;margin-left:auto;margin-right:auto;color:#fff;background-color:2ecc71;display:none;">Get Started</button>
+				</div>
+			</div>
+			<div class="col-lg-4 col-md-4"></div>
+		</div>
+
+	</div>
+		
+	
+	<!--start page content-->
+	<div class="container" id="main-content" style="display:none !important;">
+		<div class="row">
+			<div class="panel col-lg-6 col-md-6"></div>
+			<div class="panel col-lg-6 col-md-6"></div>
+		</div>
+
+		<p>Message:</p><div id="message">No Message Received</div>
+		<footer class="footer">&copy; 2014 Jake Glass, Mihir Trivedi, and Kevin Vincent</div>
+	</div>
+
+	<footer class="footer" >&copy; 2014 Kevin Vincent, Jake Glass, and Mihir Trivedi</footer>
