@@ -1,302 +1,360 @@
 <html>
-	<head>
-		<title>Codini &ndash; Mobile Code Assistant with a Touch of Magic</title>
-		
-		<!--import some js libraries and css here-->
-		<link rel="stylesheet" href="css/bootstrap.min.css">
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-		<script src="js/bootstrap.min.js"></script>
-		<link rel="stylesheet" href="css/animate.css">
-
-		<style>
-
-			.full-screen {
-			    width: 100%;
-			    height: 100%;
-			    margin: 0;
-			    top: 0;
-			    left: 0;
-			}
-			.footer {
-				width:100%;
-				height:20px;
-				position:absolute;
-				bottom:10;
-				left:0;
-			    color:#a3a7a8;
-			    text-align:center;
-			}
-			#ipInput{
-				border:0;
-				outline:none;
-				border-bottom:1px;
-				text-align:right;
-			}
-			.btn-xlarge {
-			    padding: 18px 28px;
-			    font-size: 22px;
-			    line-height: normal;
-			    -webkit-border-radius: 8px;
-			       -moz-border-radius: 8px;
-			            border-radius: 8px;
-			    display:block;
-			}
-			.navigationBar{
-				height:50px;
-				width:100%;
-				background-color:#fff;
-				box-shadow:0px 3px 1px #e3e5e5;
-				-webkit-box-shadow:0px 3px 1px #e3e5e5;
-				-moz-box-shadow:0px 3px 1px #e3e5e5;
-				margin-bottom:3px;
-			}
-			#logoImage{
-				margin:5 5 5 5px;
-			}
-			.logoText{
-				font-size:18px;
-				vertical-align: center;
-				color:#3498db;
-			}
-			#left-panel{
-				height:100%;
-				overflow-y:scroll;
-				background-color:#ecf0f1;
-				color:#000;
-				box-shadow:0px 0px 1px #e3e5e5;
-				-webkit-box-shadow: 0px 0px 6px #e3e5e5;
-				-moz-box-shadow:0px 0px 1px #e3e5e5;
-				padding:10 10 10 10px;
-			}
-			#right-panel{
-				width:100%;
-				height:100%;
-				background-color:#fff;
-				color:#000;
-				padding: 2 2 2 2px;
-			}
-			.currentCodeBox{
-				border: 1px solid #1abc9c;
-				font-size:18px;
-
-				height: 40px;
-				width: 100%;
-				vertical-align: middle;
-				padding: 3 3 3 5px;
-			}
-			.suggestionHeader{
-				margin-top:5px;
-				color:#e74c3c;
-			}
-			.suggestionCodeCategory{
-				font-size:24px;
-				margin-bottom:1px;
-			}
-			.languageIdentifierPill{
-				background-color:#e74c3c;
-				border-radius:10px;
-				-webkit-border-radius:10px;
-				-moz-border-radius:10px;
-				min-width:60px;
-				color:#fff;
-				float:right;
-				text-align:center;
-				margin-top:6px;
-			}
-			.suggestionHeaderDivider{
-				margin-top:-3px;
-				border-color:#e74c3c;
-			}
-			.suggestionsBox{
-
-				margin-top:-10px;
-				list-style-type:none;
-				color:#95a5a6;
-				font-size:18px;
-			}
-			.suggestionsBox li{
-				hover:pointer;
-			}
-			#docuFrameView{
-				overflow-y:scroll;
-				overflow-x:scroll;
-				width:100%;
-				height:100%;
-				border:none;
-			}
-			body{
-				
-				font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
-			}
-		</style>
-
-		<script>
-		console.log = function(){};
-			function loadLocalFrame(url){
-				console.log("frame loaded with url "+url);
-				$("#docuFrameView").attr('src', url);
-			}
-			function connectToWebsocketServer(ipAddress){
-				try{ //attempt to establish websocket connection
-					var connection = new WebSocket('ws://'+ipAddress+':8080');
-				} catch(e){
-					console.log(e.message);
-				}
-				console.log("server started");
-				connection.onmessage = function(e){
-//					console.log(e.data);
-					var parsee = $.parseJSON(e.data);
-
-					$(".currentCodeBox").html(parsee['word']);
-					$(".languageIdentifierPill").html(parsee['syntax']);
-
-					var listHtml;
-					for(index in parsee['matches']){
-						var a = parsee['matches'][index];
-						//console.log(a);
-						var suggestedWord = a['TokenIdentifier']['Name'];
-
-						console.log("suggestedword"+suggestedWord)
-
-						var suggestedUrl = a['Path']['#text'];
-						console.log(suggestedUrl);
-						var n = suggestedUrl.search("/API/");
-						var linkingUrl = "docs/"+parsee['syntax']+".docset/Contents/Resources/Documents/"+suggestedUrl ;
-
-						var finalProduct="<li onclick=\"loadLocalFrame('"+linkingUrl+"')\">"+suggestedWord+"</li>";
-						listHtml+=finalProduct;
-					}
-					$(".suggestionsBox").html(listHtml);
-				}
-				connection.onerror = function(e){
-					var error_message = e.data;
-					console.log(error_message);
-				}
-			}
-			var ipEntered=0;
-			$("document").ready(function(){
-				window.scrollTo(0,0);
-				$("body").css("overflow-x","hidden");
-				//let's query the local storage for a saved IP
-				var previouslySavedIp=localStorage.getItem("hostIp");
-				if(previouslySavedIp!==undefined){
-					$('#ipSelectModal').modal('show');
-				}
-				else{
-					connectToWebsocketServer(previouslySavedIp);
-				}
-
-				//event handler for modal dismiss and ip save function
-				$("#saveIpButton").click(function(){
-					//animate the switching of displays
-					$("#splash-screen").addClass('animated bounceOutDown');
-					setTimeout(function(){
-						$("#splash-screen").removeClass('bounceOutDown')
-						$("#splash-screen").css('opacity','0')
-						$("#splash-screen").html($("#main-content").html())
-						
-						$("#splash-screen").css('opacity','1')
-						$("#splash-screen").addClass('bounceInUp')
-					},1000)
-
-					//handle the ip and websocket creation
-					ipEntered=1;
-					if(typeof(Storage) !== "undefined") { //if the browser supports local data storage
-						localStorage.setItem("hostIp", $("#ipInput").val());
-						console.log("ip in local storage");
-					}
-					console.log("ip saved");
-					connectToWebsocketServer($("#ipInput").val());
-				}); //end saveIP event handler for button press after modal dismiss
-
-				//delete the cached ip and reload the page
-				$("#forgetPairingButton").click(function(){
-					localStorage.setItem("hostIp",null);
-					location.reload(true);
-				});
-			
-			
-				//ip address validator
-				var ipValidator=new RegExp("(\[0-9]{1,3})\.(\[0-9]{1,3})\.(\[0-9]{1,3})\.(\[0-9]{1,3})");
-
-	            $('#ipInput').keydown(function(){ 
-
-	            	var currInput = $('#ipInput').val();
-	            	if(currInput!=("localhos" || "localhost")){
-		            	var success=ipValidator.test(currInput);
-
-		            	if(success==true){
-		            		$("#ipInputArea").css({"color":"#2ecc71"}); //GREEN!
-			            	$("#saveIpButton").fadeIn();
-
-		            	}
-		            	else{
-		            		$("#ipInputArea").css({"color":"#c0392b"});
-		            	}
-		            }
-		            else{
-		            	$("#ipInputArea").css({"color":"#2ecc71"}); //GREEN!
-		            	$("#saveIpButton").fadeIn();
-		            }
-	            });
-
-            }); //end onLoad function
-		</script>
-	</head>
-	<body>
-	<!--MODAL & ALERT SETUP-->
-	
-
-	<!-- ipSelectScreen -->
-	<div id="splash-screen" style="max-width:100%;z-index: 99999;">
-  		<div class="row">
-    		<div class="col-lg-4 col-md-4 col-sm-4"></div>
-    		<div class="col-lg-4 col-md-4 col-sm-4">
-    			<h1 style="text-align:center;color:#3498db;margin-top:12%;">Codini</h1>
-    			<div class="row">
-	    			<div class="col-lg-2 col-md-2 col-sm-2"></div>
-	    			<div class="col-lg-8 col-md-8 col-sm-8"><img src="codini-logo.svg" width="100%" /></div>
-	    			<div class="col-lg-2 col-md-2 col-sm-2"></div>
-	    		</div>
-    			<div id="ipInputArea" style="margin-top:10px;font-size:2em;color:#c0392b">
-    				<label for="ipInput">IP: </label>
-					<input style="width:85%" type="text" id="ipInput" placeholder="192.168.1.1"></input>
-					<button class="btn btn-xlarge" id="saveIpButton" style="margin-top:10px;margin-left:auto;margin-right:auto;color:#fff;background-color:2ecc71;display:none;">Get Started</button>
-				</div>
-			</div>
-			<div class="col-lg-4 col-md-4 col-sm-4"></div>
-		</div>
-
-	</div>
-		
-	
-	<!--start page content-->
-	<div id="main-content" style="display:none !important; z-index: 0;">
-	<nav class="navigationBar" role="navigation">
-		<a href="#"><img id="logoImage" src="codini-logo.svg" width="40px"/>
-		<span class="logoText">Codini</span></a>
-	</nav>
-
-		<div class="row">
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div id="left-panel">
-					<div class="currentCodeBox">ge</div>
-					<div class="suggestionHeader">
-						<span class="suggestionCodeCategory">Function</span>
-						<span class="languageIdentifierPill">JS</span>
-					</div>
-					<hr class="suggestionHeaderDivider"></hr>
-					<ul class="suggestionsBox">
-					</ul>
-				</div>
-			</div>
-			<div class="col-lg-6 col-md-6 col-sm-6">
-				<div id="right-panel">
-					<iframe id="docuFrameView" url="http://google.com"></iframe>
-				</div>
-			</div>
-		</div>
-
-	</div>
-
-	<footer class="footer" >&copy; 2014 Kevin Vincent, Jake Glass, and Mihir Trivedi</footer>
+ 
+<head>
+    <title>Codini &ndash; Mobile Code Assistant with a Touch of Magic</title>
+ 
+    <meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<meta name="apple-touch-fullscreen" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="default">
+ 
+    <!--import some js libraries and css here-->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="css/animate.css">
+ 
+    <style>
+    .full-screen {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        top: 0;
+        left: 0;
+    }
+    .footer {
+        width: 100%;
+        height: 20px;
+        position: absolute;
+        bottom: 10;
+        left: 0;
+        color: #a3a7a8;
+        text-align: center;
+    }
+    .codini_wrapper {
+    	text-align: center
+    }
+    #codini_logo {
+    	margin-top: 20px;
+    }
+    .ipPrompt {
+    	font-size: .7em;
+    }
+    #ipInput {
+        border: 0;
+        outline: none;
+        border-bottom: 1px;
+    }
+    input {
+    	margin-top: 10px;
+    	text-align: center;
+    }
+    #ipInputArea {
+    	text-align: center;
+    	margin-top:75px;
+    	font-size:2em;
+    	color:#c0392b
+    }
+    .btn-xlarge {
+        padding: 18px 28px;
+        font-size: 22px;
+        line-height: normal;
+        -webkit-border-radius: 8px;
+        -moz-border-radius: 8px;
+        border-radius: 8px;
+        display: block;
+    }
+    .navigationBar {
+        height: 50px;
+        width: 100%;
+        background-color: #fff;
+        box-shadow: 0px 3px 1px #e3e5e5;
+        -webkit-box-shadow: 0px 3px 1px #e3e5e5;
+        -moz-box-shadow: 0px 3px 1px #e3e5e5;
+        margin-bottom: 3px;
+    }
+    #logoImage {
+        margin: 5 5 5 5px;
+    }
+    .logoText {
+        font-size: 18px;
+        vertical-align: center;
+        color: #3498db;
+    }
+    #left-panel {
+        height: 100%;
+        overflow-y: scroll;
+        background-color: #ecf0f1;
+        color: #000;
+        box-shadow: 0px 0px 1px #e3e5e5;
+        -webkit-box-shadow: 0px 0px 6px #e3e5e5;
+        -moz-box-shadow: 0px 0px 1px #e3e5e5;
+        padding: 10 10 10 10px;
+    }
+    #right-panel {
+        width: 100%;
+        height: 100%;
+        background-color: #fff;
+        color: #000;
+        padding: 2 2 2 2px;
+    }
+    .currentCodeBox {
+        border: 1px solid #1abc9c;
+        font-size: 18px;
+        height: 40px;
+        width: 100%;
+        vertical-align: middle;
+        padding: 7 3 3 10px;
+    }
+    .suggestionHeader {
+        margin-top: 5px;
+        color: #e74c3c;
+    }
+    .suggestionCodeCategory {
+        font-size: 24px;
+        margin-bottom: 1px;
+    }
+    .languageIdentifierPill {
+        background-color: #e74c3c;
+        border-radius: 10px;
+        -webkit-border-radius: 10px;
+        -moz-border-radius: 10px;
+        min-width: 60px;
+        color: #fff;
+        float: right;
+        text-align: center;
+        margin-top: 6px;
+    }
+    .suggestionHeaderDivider {
+        margin-top: -3px;
+        border-color: #e74c3c;
+    }
+    .suggestionsBox {
+        margin-top: -10px;
+        list-style-type: none;
+        color: #95a5a6;
+        font-size: 18px;
+    }
+    .suggestionsBox li {
+        cursor: pointer;
+    }
+    #docuFrameView {
+        overflow-y: scroll;
+        overflow-x: scroll;
+        width: 100%;
+        height: 100%;
+        border: none;
+    }
+    body {
+        font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
+    }
+    </style>
+ 
+    <script>
+    console.log = function() {};
+ 
+    function loadLocalFrame(url) {
+        console.log("frame loaded with url " + url);
+        $("#docuFrameView").attr('src', url);
+    }
+ 
+    function connectToWebsocketServer(ipAddress) {
+        try { //attempt to establish websocket connection
+            var connection = new WebSocket('ws://' + ipAddress + ':8080');
+        } catch (e) {
+            console.log(e.message);
+        }
+        console.log("server started");
+        connection.onmessage = function(e) {
+            //					console.log(e.data);
+            var parsee = $.parseJSON(e.data);
+ 
+            $(".currentCodeBox").html(parsee['word']);
+            $(".languageIdentifierPill").html(parsee['syntax']);
+ 
+            var listHtml;
+            for (index in parsee['matches']) {
+                var a = parsee['matches'][index];
+                //console.log(a);
+                var suggestedWord = a['TokenIdentifier']['Name'];
+ 
+                console.log("suggestedword" + suggestedWord)
+ 
+                var suggestedUrl = a['Path']['#text'];
+                console.log(suggestedUrl);
+                var n = suggestedUrl.search("/API/");
+                var linkingUrl = "docs/" + parsee['syntax'] + ".docset/Contents/Resources/Documents/" + suggestedUrl;
+ 
+                var finalProduct = "<li onclick=\"loadLocalFrame('" + linkingUrl + "')\">" + suggestedWord + "</li>";
+                listHtml += finalProduct;
+            }
+            $(".suggestionsBox").html(listHtml);
+        }
+        connection.onerror = function(e) {
+            var error_message = e.data;
+            console.log(error_message);
+        }
+    }
+    var ipEntered = 0;
+    $("document").ready(function() {
+        window.scrollTo(0, 0);
+        $("body").css("overflow-x", "hidden");
+        //let's query the local storage for a saved IP
+        var previouslySavedIp = localStorage.getItem("hostIp");
+        if (previouslySavedIp !== undefined) {
+            $('#ipSelectModal').modal('show');
+        } else {
+            connectToWebsocketServer(previouslySavedIp);
+        }
+ 
+        //event handler for modal dismiss and ip save function
+        $("#saveIpButton").click(function() {
+            //animate the switching of displays
+            $("#splash-screen").addClass('animated bounceOutDown');
+            setTimeout(function() {
+                $("#splash-screen").removeClass('bounceOutDown')
+                $("#splash-screen").css('opacity', '0')
+                $("#splash-screen").html($("#main-content").html())
+ 
+                $("#splash-screen").css('opacity', '1')
+                $("#splash-screen").addClass('bounceInUp')
+            }, 1000)
+ 
+            //handle the ip and websocket creation
+            ipEntered = 1;
+            if (typeof(Storage) !== "undefined") { //if the browser supports local data storage
+                localStorage.setItem("hostIp", $("#ipInput").val());
+                console.log("ip in local storage");
+            }
+            console.log("ip saved");
+            connectToWebsocketServer($("#ipInput").val());
+        }); //end saveIP event handler for button press after modal dismiss
+ 
+        //delete the cached ip and reload the page
+        $("#forgetPairingButton").click(function() {
+            localStorage.setItem("hostIp", null);
+            location.reload(true);
+        });
+ 
+ 
+        //ip address validator
+        var pattern = /\b(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b/;
+ 
+        $('#ipInput').keyup(function() {
+ 
+            var currInput = $('#ipInput').val();
+            if (currInput != "localhost") {
+ 
+                var success = pattern.test(currInput);
+ 
+                if (success == true && currInput.split(".").length == 4) {
+                    $("#ipInputArea").css({
+                        "color": "#2ecc71"
+                    }); //GREEN!
+                    $("#saveIpButton").fadeIn();
+ 
+                } else {
+                    $("#ipInputArea").css({
+                        "color": "#c0392b"
+                    });
+                    $("#saveIpButton").fadeOut();
+ 
+                }
+            } else {
+                $("#ipInputArea").css({
+                    "color": "#2ecc71"
+                }); //GREEN!
+                $("#saveIpButton").fadeIn();
+            }
+        });
+ 
+    }); //end onLoad function
+    </script>
+</head>
+ 
+<body>
+    <!--MODAL & ALERT SETUP-->
+ 
+ 
+    <!-- ipSelectScreen -->
+    <div id="splash-screen" style="max-width:100%;z-index: 99999;">
+        <!-- <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4"></div>
+            <div class="col-lg-4 col-md-4 col-sm-4">
+                <h1 style="text-align:center;color:#3498db;margin-top:12%;">Codini</h1>
+                <div class="row">
+                    <div class="col-lg-2 col-md-2 col-sm-2"></div>
+                    <div class="col-lg-8 col-md-8 col-sm-8">
+                        <img src="codini-logo.svg" width="100%" id="codini_logo" />
+                    </div>
+                    <div class="col-lg-2 col-md-2 col-sm-2"></div>
+                </div>
+                <div id="ipInputArea" style="margin-top:10px;font-size:2em;color:#c0392b">
+                    <center>
+                        <span>IP:</span>
+                        <input style="width:45%" type="text" id="ipInput" placeholder="192.168.1.1"></input>
+                    </center>
+                    <button class="btn btn-xlarge" id="saveIpButton" style="margin-top:10px;margin-left:auto;margin-right:auto;color:#fff;background-color:2ecc71;display:none;">Get Started</button>
+                </div>
+            </div>
+            <div class="col-lg-4 col-md-4 col-sm-4"></div>
+        </div> -->
+ 
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-offset-4">
+                <h1 style="text-align:center;color:#3498db;margin-top:12%;">Codini</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-offset-4">
+            	<div class="codini_wrapper">
+                	<img src="codini-logo.svg" width="60%" id="codini_logo" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-4 col-md-4 col-sm-4 col-xs-offset-4">
+                <div id="ipInputArea">
+ 
+                    <div class="ipPrompt">Enter IP of your computer</div>
+                    <input style="width:100%" type="text" id="ipInput" placeholder="192.168.1.1" autofocus></input>
+                    <button class="btn btn-xlarge" id="saveIpButton" style="margin-top:10px;margin-left:auto;margin-right:auto;color:#fff;background-color:2ecc71;display:none;">Get Started</button>
+ 
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+ 
+    <!--start page content-->
+    <div id="main-content" style="display:none !important; z-index: 0;">
+        <nav class="navigationBar" role="navigation">
+            <a href="#">
+                <img id="logoImage" src="codini-logo.svg" width="40px" />
+                <span class="logoText">Codini</span>
+            </a>
+        </nav>
+ 
+        <div class="row">
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div id="left-panel">
+                    <div class="currentCodeBox"></div>
+                    <div class="suggestionHeader">
+                        <span class="suggestionCodeCategory">Results</span>
+                        <span class="languageIdentifierPill"></span>
+                    </div>
+                    <hr class="suggestionHeaderDivider"></hr>
+                    <ul class="suggestionsBox">
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-6 col-md-6 col-sm-6">
+                <div id="right-panel">
+                    <iframe id="docuFrameView" url="http://google.com"></iframe>
+                </div>
+            </div>
+        </div>
+ 
+    </div>
+ 
+    <footer class="footer">&copy; 2014 Jake Glass, Kevin Vincent, and Mihir Trivedi</footer>
