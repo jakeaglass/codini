@@ -7,6 +7,7 @@ var docsets = {}
 docsets['JavaScript'] = require('./docsets/javascript.json').Tokens.Token
 docsets['HTML'] = require('./docsets/html.json').Tokens.Token
 docsets['CSS'] = require('./docsets/css.json').Tokens.Token
+docsets['Python 3'] = require('./docsets/python3.json').Tokens.Token
 
 //DocsetLoader
 var cache = {}
@@ -64,7 +65,7 @@ udpServer.on('message', function(message, remote) {
     var tokens = data.syntax.trim().split(" ")
     var lastToken = tokens[tokens.length - 1]
 
-    console.log(tokens)
+    //console.log(tokens)
 
     var syntax = 'HTML'
 
@@ -72,6 +73,8 @@ udpServer.on('message', function(message, remote) {
         syntax = "JavaScript"
     } else if (lastToken.indexOf("css") > -1) {
         syntax = "CSS"
+    } else if (lastToken.indexOf("python") > -1) {
+        syntax = "Python 3"
     }
 
     var possibleMatches = []
@@ -88,7 +91,7 @@ udpServer.on('message', function(message, remote) {
     jsonData['matches'] = possibleMatches
 
     dataString = JSON.stringify(jsonData)
-    console.log(jsonData['syntax'])
+    //console.log(jsonData['syntax'])
     broadcast(dataString)
 });
 
