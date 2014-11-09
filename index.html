@@ -9,6 +9,7 @@
 		<link rel="stylesheet" href="css/animate.css">
 
 		<style>
+
 			.full-screen {
 			    width: 100%;
 			    height: 100%;
@@ -40,7 +41,79 @@
 			            border-radius: 8px;
 			    display:block;
 			}
+			.navigationBar{
+				height:50px;
+				width:100%;
+				background-color:#fff;
+				box-shadow:0px 3px 1px #e3e5e5;
+				-webkit-box-shadow:0px 3px 1px #e3e5e5;
+				-moz-box-shadow:0px 3px 1px #e3e5e5;
+				margin-bottom:3px;
+			}
+			#logoImage{
+				margin:5 5 5 5px;
+			}
+			.logoText{
+				font-size:18px;
+				vertical-align: center;
+				color:#3498db;
+			}
+			#left-panel{
+				background-color:#ecf0f1;
+				color:#000;
+				box-shadow:0px 0px 1px #e3e5e5;
+				-webkit-box-shadow: 0px 0px 6px #e3e5e5;
+				-moz-box-shadow:0px 0px 1px #e3e5e5;
+				height:480px;
+				padding:10 10 10 10px;
+			}
+			#right-panel{
+				width:100%;
+				height:480px;
+				background-color:#fff;
+				color:#000;
+				padding: 10 10 10 10px;
+			}
+			.currentCodeBox{
+				border: 1px solid #1abc9c;
+				font-size:18px;
+
+				height: 40px;
+				width: 100%;
+				vertical-align: middle;
+				padding: 3 3 3 5px;
+			}
+			.suggestionHeader{
+				margin-top:5px;
+				color:#e74c3c;
+			}
+			.suggestionCodeCategory{
+				font-size:24px;
+				margin-bottom:1px;
+			}
+			.languageIdentifierPill{
+				background-color:#e74c3c;
+				border-radius:10px;
+				-webkit-border-radius:10px;
+				-moz-border-radius:10px;
+				min-width:40px;
+				color:#fff;
+				float:right;
+				text-align:center;
+				margin-top:6px;
+			}
+			.suggestionHeaderDivider{
+				margin-top:-3px;
+				border-color:#e74c3c;
+			}
+			.suggestionsBox{
+				margin-top:-10px;
+				list-style-type:none;
+				color:#95a5a6;
+				font-size:18px;
+			}
 			body{
+				
 				font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif !important;
 			}
 		</style>
@@ -65,6 +138,8 @@
 			}
 			var ipEntered=0;
 			$("document").ready(function(){
+				window.scrollTo(0,0);
+				$("body").css("overflow-x","hidden");
 				//let's query the local storage for a saved IP
 				var previouslySavedIp=localStorage.getItem("hostIp");
 				if(previouslySavedIp!==undefined){
@@ -134,40 +209,61 @@
 	<body>
 	<!--MODAL & ALERT SETUP-->
 	
-	<!-- bad socket connection alert-->
-	<button type="button" class="close" data-dismiss="alert">
-  		<span aria-hidden="true">&times;</span>
-  		<span class="sr-only">Close</span>
-	</button>
 
 	<!-- ipSelectScreen -->
-	<div class="container" id="splash-screen" style="z-index: 99999;">
+	<div id="splash-screen" style="max-width:100%;z-index: 99999;">
   		<div class="row">
-    		<div class="col-lg-4 col-md-4"></div>
-    		<div class="col-lg-4 col-md-4">
+    		<div class="col-lg-4 col-md-4 col-sm-4"></div>
+    		<div class="col-lg-4 col-md-4 col-sm-4">
     			<h1 style="text-align:center;color:#3498db;margin-top:12%;">Codini</h1>
-    			<img src="codini-logo.svg" width="100%" />
+    			<div class="row">
+	    			<div class="col-lg-2 col-md-2 col-sm-2"></div>
+	    			<div class="col-lg-8 col-md-2 col-sm-2"><img src="codini-logo.svg" width="100%" /></div>
+	    			<div class="col-lg-2 col-md-2 col-sm-2"></div>
+	    		</div>
     			<div id="ipInputArea" style="margin-top:10px;font-size:2em;color:#c0392b">
     				<label for="ipInput">IP: </label>
-					<input style="width:89%" type="text" id="ipInput" placeholder="192.168.1.1"></input>
+					<input style="width:85%" type="text" id="ipInput" placeholder="192.168.1.1"></input>
 					<button class="btn btn-xlarge" id="saveIpButton" style="margin-top:10px;margin-left:auto;margin-right:auto;color:#fff;background-color:2ecc71;display:none;">Get Started</button>
 				</div>
 			</div>
-			<div class="col-lg-4 col-md-4"></div>
+			<div class="col-lg-4 col-md-4 col-sm-4"></div>
 		</div>
 
 	</div>
 		
 	
 	<!--start page content-->
-	<div class="container" id="main-content" style="display:none !important; z-index: 0;">
+	<div id="main-content" style="display:none !important; z-index: 0;">
+	<nav class="navigationBar" role="navigation">
+		<a href="#"><img id="logoImage" src="codini-logo.svg" width="40px"/>
+		<span class="logoText">Codini</span></a>
+	</nav>
+
 		<div class="row">
-			<div class="panel col-lg-6 col-md-6"></div>
-			<div class="panel col-lg-6 col-md-6"></div>
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				<div id="left-panel">
+					<div class="currentCodeBox">ge</div>
+					<div class="suggestionHeader">
+						<span class="suggestionCodeCategory">Function</span>
+						<span class="languageIdentifierPill">JS</span>
+					</div>
+					<hr class="suggestionHeaderDivider"></hr>
+					<ul class="suggestionsBox">
+						<li>getCurrentCode()</li>
+						<li>gearUp()</li>
+						<li>gerundifyFunctionName()</li>
+					</ul>
+				</div>
+			</div>
+			<div class="col-lg-6 col-md-6 col-sm-6">
+				<div id="right-panel">
+					!!CONTENT
+				</div>
+			</div>
 		</div>
 
 		<p>Message:</p><div id="message">No Message Received</div>
-		<footer class="footer">&copy; 2014 Jake Glass, Mihir Trivedi, and Kevin Vincent</div>
 	</div>
 
 	<footer class="footer" >&copy; 2014 Kevin Vincent, Jake Glass, and Mihir Trivedi</footer>
