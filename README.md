@@ -33,3 +33,10 @@ On a Mac, the Sublime Text plugins directory is located under `~/Library/Applica
 
 ###Access WebApp on Companion Device
 Go to [http://codini.zarv.tk](http://codini.zarv.tk) on your secondary device and you'll be met with a dialogue requesting the IP of your host machine. Find the local IP in your host computer's network configuration and enter it into the webpage on the secondary device, then hit "Get Started." Magicalness should now occur!
+
+##More Resources, Languages, and Docsets, Oh My!
+The folder `codini/broadcastServer/docsets/` contins `.json` array files of the languages currently supported for documentation.
+
+- Sublime Text's backend will determine what language the user is writing, and Codini's python on the main computer will use that information to pick a language index file.
+- Currently, Codini ONLY supports Python, CSS, HTML, and Javascript, but you can add languages.
+- The way Codini's implementation of reference file parsing works is by the host PC passing the client device an array of possible matches for the word you're typing, which are each linked to reference files stored on a remote server; these open in an Iframe on the right half of the secondary device, while the suggestions appear on the left.
