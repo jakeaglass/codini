@@ -5,17 +5,72 @@
 		<!--import some js libraries and css here-->
 		<link rel="stylesheet" href="css/bootstrap.min.css">
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+		<script src="js/bootstrap.min.js"></script>
 
+		<script>
+			function connectToWebsocketServer(ipAddress){
+				var connection = new WebSocket('ws://'+ipAddress+':8080');
+				console.log("server started");
+				connection.onmessage = function(e){
+				   var server_message = e.data;
+				   $("#message").html(server_message);
+				   console.log(server_message);
+				}
+				connection.onerror = function(e){
+					var error_message = e.data;
+					console.log(error_message);
+				}
+			}
+			var ipEntered=0;
+			$("document").ready(function(){
+				//let's query the local storage for a saved IP
+				var previouslySavedIp=localStorage.getItem("hostIp");
+				if(!previouslySavedIp){
+					$('#ipSelectModal').modal('show');
+				}
+				else{
+					connectToWebsocketServer(previouslySavedIp);
+				}
+
+				//event handler for modal dismiss and ip save function
+				$("#saveIp").click(function(){
+					ipEntered=1;
+					if(typeof(Storage) !== "undefined") { //if the browser supports local data storage
+						localStorage.setItem("hostIp", $("#ipAddressInput").val());
+						console.log("ip in local storage");
+					}
+					console.log("ip saved");
+					connectToWebsocketServer($("#ipAddressInput").val());
+				}); //end saveIP event handler for button press after modal dismiss
+
+
+
+			}); //end onLoad function
+			
+			
+
+		</script>
 	</head>
 	<body>
-		<script>
-			var connection = new WebSocket('ws://172.16.1.206:8080');
-			connection.onmessage = function(e){
-			   var server_message = e.data;
-			   $("#message").html(server_message);
-			   console.log(server_message);
-			}
-		</script>
+	<!--MODAL SETUP-->
+
+	<!-- ipSelectModal-->
+	<div class="modal fade" id="ipSelectModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <h4 class="modal-title" id="myModalLabel">Please enter the IP address of your host programming machine</h4>
+	      </div>
+	      <div class="modal-body">
+	        <input type="text" id="ipAddressInput" placeholder="192.168.1.1 or similar" />
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" id="saveIp" class="btn btn-default" data-dismiss="modal">Save Host</button>
+	      </div>
+	    </div>
+	  </div>
+	</div>
+
 		<nav class="navbar navbar-default" role="navigation">
 		  <div class="container-fluid">
 		    <!-- Brand and toggle get grouped for better mobile display -->
