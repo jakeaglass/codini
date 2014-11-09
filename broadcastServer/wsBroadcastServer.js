@@ -4,9 +4,9 @@ var request = require('request');
 
 //Load Docsets
 var docsets = {}
-docsets['javascript'] = require('./docsets/javascript.json').Tokens.Token
-docsets['html'] = require('./docsets/html.json').Tokens.Token
-docsets['css'] = require('./docsets/css.json').Tokens.Token
+docsets['JavaScript'] = require('./docsets/javascript.json').Tokens.Token
+docsets['HTML'] = require('./docsets/html.json').Tokens.Token
+docsets['CSS'] = require('./docsets/css.json').Tokens.Token
 
 //DocsetLoader
 var cache = {}
@@ -59,16 +59,20 @@ udpServer.on('listening', function() {
 udpServer.on('message', function(message, remote) {
     var data = JSON.parse(message)
 
-    //Get Array of Languages
-    var firstLine = data.firstLine.substring(data.firstLine.indexOf('codini$') + 'codini$'.length)
-    firstLine = firstLine.replace(/\s/g, "");
-    var docsetsLanguages = firstLine.split(",")
-        //console.log(docsetsLanguages)
-        //console.log(data)
-
     console.log("***********************************")
 
-    var syntax = 'javascript'
+    var tokens = data.syntax.trim().split(" ")
+    var lastToken = tokens[tokens.length - 1]
+
+    console.log(tokens)
+
+    var syntax = 'HTML'
+
+    if (lastToken.indexOf("js") > -1) {
+        syntax = "JavaScript"
+    } else if (lastToken.indexOf("css") > -1) {
+        syntax = "CSS"
+    }
 
     var possibleMatches = []
 
@@ -78,7 +82,14 @@ udpServer.on('message', function(message, remote) {
         }
     }
 
-    console.log(possibleMatches)
+    jsonData = {}
+    jsonData['word'] = data.word
+    jsonData['syntax'] = syntax
+    jsonData['matches'] = possibleMatches
+
+    dataString = JSON.stringify(jsonData)
+    console.log(jsonData['syntax'])
+    broadcast(dataString)
 });
 
 udpServer.bind(PORT, HOST);
