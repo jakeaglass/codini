@@ -1,4 +1,6 @@
+//codini$ javascript, node.js
 var ws = require("nodejs-websocket")
+var request = require('request');
 
 //Load Docsets
 var docsets = {}
@@ -6,11 +8,21 @@ docsets['javascript'] = require('./docsets/javascript.json').Tokens.Token
 docsets['html'] = require('./docsets/html.json').Tokens.Token
 docsets['css'] = require('./docsets/css.json').Tokens.Token
 
-//Map of syntax identifiers to docset
-syntaxMap = {}
-syntaxMap['syntax.javascript'] = 'javascript'
-syntaxMap['syntax.html'] = 'javascript'
-syntaxMap['syntax.css'] = 'javascript'
+//DocsetLoader
+var cache = {}
+
+function getDocset(docset, callback) {
+    var url = "http://test.com/" + docset
+    if (docset in cache) {
+        callback(cache[docset])
+    }
+    request(url, function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+            callback(body)
+            cache[docset] = body
+        }
+    })
+}
 
 // Websocket Broadcast Server
 var server = ws.createServer(function(conn) {
@@ -46,9 +58,18 @@ udpServer.on('listening', function() {
 
 udpServer.on('message', function(message, remote) {
     var data = JSON.parse(message)
-    console.log(data)
+
+    //Get Array of Languages
+    var firstLine = data.firstLine.substring(data.firstLine.indexOf('codini$') + 'codini$'.length)
+    firstLine = firstLine.replace(/\s/g, "");
+    var docsetsLanguages = firstLine.split(",")
+        //console.log(docsetsLanguages)
+        //console.log(data)
+
+    console.log("***********************************")
 
     var syntax = 'javascript'
+    clear
 
     var possibleMatches = []
 
@@ -58,7 +79,7 @@ udpServer.on('message', function(message, remote) {
         }
     }
 
-    //console.log(possibleMatches)
+    console.log(possibleMatches)
 });
 
 udpServer.bind(PORT, HOST);
