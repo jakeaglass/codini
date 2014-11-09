@@ -29,7 +29,7 @@ On a Mac, the Sublime Text plugins directory is located under `~/Library/Applica
 ###Start Local Server
 `cd` into the directory where the plugin is installed and run
 
-`./start BroadcastServer`
+`./start`
 
 ###Access WebApp on Companion Device
 Go to [http://codini.zarv.tk](http://codini.zarv.tk) on your secondary device and you'll be met with a dialogue requesting the IP of your host machine. Find the local IP in your host computer's network configuration and enter it into the webpage on the secondary device, then hit "Get Started." Magicalness should now occur!
