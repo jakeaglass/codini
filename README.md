@@ -24,7 +24,7 @@ You'll need to add the files in this folder to your plugins directory in order f
 
 `git clone https://github.com/jakeaglass/codini.git`
 
-On a Mac, the Sublime Text plugins directory is located under `~/Library/Application Support/Sublime Text 3/Packages/`. On Windows the path is `%APPDATA%\Sublime Text 3`, and Linux has it under ` ~/.Sublime Text 2`. 
+On a Mac, the Sublime Text plugins directory is located under `~/Library/Application Support/Sublime Text 3/Packages/`. On Windows the path is `%APPDATA%\Sublime Text 3`, and Linux has it under ` ~/.Sublime Text 3`. 
 
 ###Start Local Server
 `cd` into the directory where the plugin is installed and run
