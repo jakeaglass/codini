@@ -12,3 +12,24 @@ var server = ws.createServer(function(conn) {
         console.log("Connection closed")
     })
 }).listen(8080)
+
+
+var PORT = 8888;
+var HOST = '0.0.0.0';
+
+var dgram = require('dgram');
+var udpServer = dgram.createSocket('udp4');
+
+udpServer.on('listening', function() {
+    var address = udpServer.address();
+    console.log('UDP Server listening on ' + address.address + ":" + address.port);
+});
+
+udpServer.on('message', function(message, remote) {
+    console.log(remote.address + ':' + remote.port + ' - ' + message);
+    server.connections.forEach(function(conn) {
+        conn.sendText(message)
+    })
+});
+
+udpServer.bind(PORT, HOST);
