@@ -13,6 +13,10 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script src="js/bootstrap.min.js"></script>
     <link rel="stylesheet" href="css/animate.css">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+
+    <script src="sweet-alert.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="sweet-alert.css">
  
     <style>
     .full-screen {
@@ -151,48 +155,50 @@
     </style>
  
     <script>
-    console.log = function() {};
+//    console.log = function() {};
  
     function loadLocalFrame(url) {
         console.log("frame loaded with url " + url);
         $("#docuFrameView").attr('src', url);
     }
  
-    function connectToWebsocketServer(ipAddress) {
-        try { //attempt to establish websocket connection
-            var connection = new WebSocket('ws://' + ipAddress + ':8080');
-        } catch (e) {
-            console.log(e.message);
-        }
-        console.log("server started");
-        connection.onmessage = function(e) {
-            //					console.log(e.data);
-            var parsee = $.parseJSON(e.data);
- 
-            $(".currentCodeBox").html(parsee['word']);
-            $(".languageIdentifierPill").html(parsee['syntax']);
- 
-            var listHtml;
-            for (index in parsee['matches']) {
-                var a = parsee['matches'][index];
-                //console.log(a);
-                var suggestedWord = a['TokenIdentifier']['Name'];
- 
-                console.log("suggestedword" + suggestedWord)
- 
-                var suggestedUrl = a['Path']['#text'];
-                console.log(suggestedUrl);
-                var n = suggestedUrl.search("/API/");
-                var linkingUrl = "docs/" + parsee['syntax'] + ".docset/Contents/Resources/Documents/" + suggestedUrl;
- 
-                var finalProduct = "<li onclick=\"loadLocalFrame('" + linkingUrl + "')\">" + suggestedWord + "</li>";
-                listHtml += finalProduct;
+    function connectToWebsocketServer(ipAddress,callback) {
+        //attempt to establish websocket connection
+        var connection = new WebSocket('ws://' + ipAddress + ':8080');
+        connection.onopen=function(e){
+            callback(true)
+            console.log("server started");
+            connection.onmessage = function(e) {
+                //					console.log(e.data);
+                var parsee = $.parseJSON(e.data);
+     
+                $(".currentCodeBox").html(parsee['word']);
+                $(".languageIdentifierPill").html(parsee['syntax']);
+     
+                var listHtml;
+                for (index in parsee['matches']) {
+                    var a = parsee['matches'][index];
+                    //console.log(a);
+                    var suggestedWord = a['TokenIdentifier']['Name'];
+     
+                    console.log("suggestedword" + suggestedWord)
+     
+                    var suggestedUrl = a['Path']['#text'];
+                    console.log(suggestedUrl);
+                    var n = suggestedUrl.search("/API/");
+                    var linkingUrl = "docs/" + parsee['syntax'] + ".docset/Contents/Resources/Documents/" + suggestedUrl;
+     
+                    var finalProduct = "<li onclick=\"loadLocalFrame('" + linkingUrl + "')\">" + suggestedWord + "</li>";
+                    listHtml += finalProduct;
+                }
+                $(".suggestionsBox").html(listHtml);
             }
-            $(".suggestionsBox").html(listHtml);
+            
         }
         connection.onerror = function(e) {
-            var error_message = e.data;
-            console.log(error_message);
+            //location.reload(true);
+            //window.location.href="http://codini.zarv.tk/#fatalWebsocketError";
+            callback(false)
         }
     }
     var ipEntered = 0;
@@ -208,30 +214,37 @@
         }
  
         //event handler for modal dismiss and ip save function
-        $("#saveIpButton").click(function() {
-            //animate the switching of displays
-            $("#splash-screen").addClass('animated bounceOutDown');
-            setTimeout(function() {
-                $("#splash-screen").removeClass('bounceOutDown')
-                $("#splash-screen").css('opacity', '0')
-                $("#splash-screen").html($("#main-content").html())
- 
-                $("#splash-screen").css('opacity', '1')
-                $("#splash-screen").addClass('bounceInUp')
-            }, 1000)
- 
-            //handle the ip and websocket creation
-            ipEntered = 1;
-            if (typeof(Storage) !== "undefined") { //if the browser supports local data storage
-                localStorage.setItem("hostIp", $("#ipInput").val());
-                console.log("ip in local storage");
-            }
-            console.log("ip saved");
-            connectToWebsocketServer($("#ipInput").val());
+        $("#saveIpButton").on('click',function() {
+            connectToWebsocketServer($("#ipInput").val(), function(success){
+                if(success){
+                //animate the switching of displays
+                $("#splash-screen").addClass('animated bounceOutDown');
+                setTimeout(function() {
+                    $("#splash-screen").removeClass('bounceOutDown')
+                    $("#splash-screen").css('opacity', '0')
+                    $("#splash-screen").html($("#main-content").html())
+     
+                    $("#splash-screen").css('opacity', '1')
+                    $("#splash-screen").addClass('bounceInUp')
+                }, 1000)
+     
+                //handle the ip and websocket creation
+                ipEntered = 1;
+                if (typeof(Storage) !== "undefined") { //if the browser supports local data storage
+                    localStorage.setItem("hostIp", $("#ipInput").val());
+                    console.log("ip in local storage");
+                }
+                console.log("ip saved");
+                }
+                else{
+                    $("#splash-screen").addClass('animated shake');
+                    sweetAlert("Oops...", "Error! Connection to server failed. Perhaps you entered the wrong IP address or aren't on the same network as your dev computer?", "error");
+                }
+            });
         }); //end saveIP event handler for button press after modal dismiss
  
         //delete the cached ip and reload the page
-        $("#forgetPairingButton").click(function() {
+        $("#disconnectButton").click(function() {
             localStorage.setItem("hostIp", null);
             location.reload(true);
         });
@@ -332,6 +345,12 @@
             <a href="#">
                 <img id="logoImage" src="codini-logo.svg" width="40px" />
                 <span class="logoText">Codini</span>
+            </a>
+            <a href="#">
+                <div class="btn btn-warning btn-small pull-right" style="margin-left:7px;margin-top:5px;margin-right:5px;" id="disconnectButton">Disconnect</div>
+            </a>
+            <a target="_blank" href="https://github.com/jakeaglass/codini">
+                <div style="margin-top:5px;" class="btn btn-default btn-small pull-right"><i style="color:#000;" class="logoText fa fa-github"></i></div>
             </a>
         </nav>
  
