@@ -77,8 +77,15 @@
 				//event handler for modal dismiss and ip save function
 				$("#saveIpButton").click(function(){
 					//animate the switching of displays
-					$("#splash-screen").slideUp(1000);
-					$("#main-content").slideDown(1000);
+					$("#splash-screen").addClass('animated bounceOutDown');
+					setTimeout(function(){
+						$("#splash-screen").removeClass('bounceOutDown')
+						$("#splash-screen").css('opacity','0')
+						$("#splash-screen").html($("#main-content").html())
+						
+						$("#splash-screen").css('opacity','1')
+						$("#splash-screen").addClass('bounceInUp')
+					},1000)
 
 					//handle the ip and websocket creation
 					ipEntered=1;
@@ -134,7 +141,7 @@
 	</button>
 
 	<!-- ipSelectScreen -->
-	<div class="container" id="splash-screen">
+	<div class="container" id="splash-screen" style="z-index: 99999;">
   		<div class="row">
     		<div class="col-lg-4 col-md-4"></div>
     		<div class="col-lg-4 col-md-4">
@@ -153,7 +160,7 @@
 		
 	
 	<!--start page content-->
-	<div class="container" id="main-content" style="display:none !important;">
+	<div class="container" id="main-content" style="display:none !important; z-index: 0;">
 		<div class="row">
 			<div class="panel col-lg-6 col-md-6"></div>
 			<div class="panel col-lg-6 col-md-6"></div>
