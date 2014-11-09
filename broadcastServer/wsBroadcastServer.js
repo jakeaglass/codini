@@ -69,7 +69,6 @@ udpServer.on('message', function(message, remote) {
     console.log("***********************************")
 
     var syntax = 'javascript'
-    clear
 
     var possibleMatches = []
 
