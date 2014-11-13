@@ -169,7 +169,7 @@
         var connection = new WebSocket('ws://' + ipAddress + ':8080');
         connection.onopen=function(e){
             callback(true)
-            var connected=1;
+            connected=1;
             connection.onmessage = function(e) {
                 //					console.log(e.data);
                 var parsee = $.parseJSON(e.data);
