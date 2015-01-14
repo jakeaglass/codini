@@ -35,7 +35,7 @@ sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
 # Start Node.js Server
 package_path = ["/usr/local/bin/node",sublime.packages_path()+"/codini/broadcastServer/wsBroadcastServer.js"]
-process = subprocess.Popen(package_path,shell=False)
+process = subprocess.call(package_path)
 
 # Tell User Where to Connect
 def plugin_loaded():
