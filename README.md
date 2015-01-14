@@ -12,6 +12,9 @@ Features:
 	- Expandable text -- see your code between two comments
 
 ##Getting Codini
+
+###Now Available as an easy Installer Package for OS X and Sublime Text 3!
+
 There are two components to a Condini setup: the server or host computer and the client. The server is where you're writing your code, so it's probably a PC. The latter device, the client, can be any computer that can access the web and will display your code completion suggestions and help you instantly navigate documentation, instantaneously updating as you code away on the host computer.
 
 ###Install Dependencies
@@ -27,7 +30,7 @@ You'll need to add the files in this folder to your plugins directory in order f
 On a Mac, the Sublime Text plugins directory is located under `~/Library/Application Support/Sublime Text 3/Packages/`. On Windows the path is `%APPDATA%\Sublime Text 3`, and Linux has it under ` ~/.Sublime Text 3`. 
 
 ###Start Local Server
-`cd` into the directory where the plugin is installed and run
+The plugin should start on its own when you open Sublime, and you will be notified as such. However, if it doesn't work the first time, try to `cd` into the directory where the plugin is installed and run
 
 `./start`
 
