@@ -35,7 +35,7 @@ The plugin should start on its own when you open Sublime, and you will be notifi
 `./start`
 
 ###Access WebApp on Companion Device
-Go to [http://codini.zarv.tk](http://codini.zarv.tk) on your secondary device and you'll be met with a dialogue requesting the IP of your host machine. Find the local IP in your host computer's network configuration and enter it into the webpage on the secondary device, then hit "Get Started." Magicalness should now occur!
+Go to [http://macpie.net/codini](http://macpie.net/codini) on your secondary device and you'll be met with a dialogue requesting the IP of your host machine. Find the local IP in your host computer's network configuration and enter it into the webpage on the secondary device, then hit "Get Started." Magicalness should now occur!
 
 ##More Resources, Languages, and Docsets, Oh My!
 The folder `codini/broadcastServer/docsets/` contins `.json` array files of the languages currently supported for documentation.
